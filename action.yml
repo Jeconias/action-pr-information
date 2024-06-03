@@ -1,0 +1,8 @@
+name: "pr-information"
+description: "Get details of your PR after the merge."
+outputs:
+  changelog:
+    description: "The changelog text found or empty string."
+runs:
+  using: "node20"
+  main: "dist/index.js"
