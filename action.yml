@@ -1,8 +1,22 @@
-name: "pr-information"
-description: "Get details of your PR after the merge."
+name: pr-information
+description: Get details of your PR after the merge.
+inputs:
+  github_token:
+    description: A GitHub token.
+    required: true
+  find_in_body_by:
+    description: A regex to use in the body to extract something.
+    required: false
 outputs:
-  changelog:
-    description: "The changelog text found or empty string."
+  title:
+    description: PR title.
+  body:
+    description: Description of the PR or a list of matches if "find_in_body_by" is set.
+  labels:
+    description: A list of labels.
+  url:
+    description: PR URL address.
+
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: node20
+  main: dist/index.js

@@ -27,3 +27,13 @@ jobs:
       - name: Run PR Information
         id: pr-information
         uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          find_in_body_by: (https?:\/\/[A-z\.-]+)
+
+      - name: Showing the result
+        run: |
+          echo ${{ steps.pr-information.outputs.title }}
+          echo ${{ steps.pr-information.outputs.body }}
+          echo ${{ toJson(steps.pr-information.outputs.labels) }}
+          echo ${{ steps.pr-information.outputs.url }}

@@ -29228,19 +29228,47 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const actionName = "PR Information";
+const actionName = 'PR Information';
 const handleDebug = (str) => {
-    const isDebug = core.isDebug();
-    if (!isDebug)
-        return;
     core.debug(`[${actionName}]::${str}`);
 };
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log(github.context.payload.action);
-        handleDebug(JSON.stringify(github.context.payload));
+const run = () => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const ghToken = core.getInput('github_token');
+    const findInBodyBy = core.getInput('find_in_body_by');
+    const pull = yield getMergedPullRequest(ghToken, github.context.repo.owner, github.context.repo.repo, github.context.sha);
+    if (!pull) {
+        throw new Error('Pull request not found');
+    }
+    handleDebug(JSON.stringify(pull));
+    const body = getBody(findInBodyBy, pull.body);
+    const labels = (_a = pull.labels) === null || _a === void 0 ? void 0 : _a.map((l) => l.name);
+    core.setOutput('title', pull.title);
+    core.setOutput('body', body);
+    core.setOutput('labels', labels);
+    core.setOutput('url', pull.html_url);
+});
+const getBody = (findInBodyBy, body) => {
+    var _a, _b;
+    if (!findInBodyBy)
+        return body;
+    const regex = new RegExp(findInBodyBy, 'g');
+    return (_b = (_a = body === null || body === void 0 ? void 0 : body.match(regex)) === null || _a === void 0 ? void 0 : _a.map((v) => v)) !== null && _b !== void 0 ? _b : [];
+};
+const getMergedPullRequest = (githubToken, owner, repo, sha) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    const octokit = github.getOctokit(githubToken);
+    handleDebug(`Searching PR ( owner = ${owner}, repo = ${repo}, sha = ${sha}, direction = desc, sort = updated, state = closed, per_page = 50 )`);
+    const resp = yield octokit.rest.pulls.list({
+        owner,
+        repo,
+        direction: 'desc',
+        sort: 'updated',
+        state: 'closed',
+        per_page: 50,
     });
-}
+    return (_b = resp === null || resp === void 0 ? void 0 : resp.data) === null || _b === void 0 ? void 0 : _b.find((p) => p.merge_commit_sha === sha);
+});
 run().catch((err) => core.setFailed(err.message));
 
 
