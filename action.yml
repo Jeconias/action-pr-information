@@ -1,5 +1,8 @@
 name: pr-information
 description: Get details of your PR after the merge.
+branding:
+  icon: 'info'
+  color: 'blue'
 inputs:
   github_token:
     description: A GitHub token.
